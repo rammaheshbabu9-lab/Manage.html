@@ -3,2699 +3,1884 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ONE MINUTE NEWS — Management</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>LOOPIN — One Workspace</title>
 
 <style>
-*{box-sizing:border-box}
-body{
-    margin:0;
-    font-family:Inter,Arial,sans-serif;
-    background:#0b0d12;
-    color:#fff;
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#fff;
+  --text:#17171b;
+  --muted:#8b8b95;
+  --line:#eeeeF2;
+  --hover:#f5f5f8;
+  --active:#f0edff;
+  --accent:#6c5ce7;
+  --danger:#e5484d;
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-.container{
-    width:min(100%,1000px);
-    margin:auto;
-    padding:16px;
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
-.screen{display:none}
-.auth-wrap{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
+
+button,input,textarea{
+  font:inherit;
 }
-.card{
-    background:#151922;
-    border:1px solid #292e3a;
-    border-radius:18px;
-    padding:22px;
-    box-shadow:0 15px 50px #0008;
+
+button{
+  border:0;
+  background:none;
+  cursor:pointer;
 }
-.auth-card{width:min(100%,420px)}
-.logo{
-    text-align:center;
-    font-size:26px;
-    font-weight:900;
-    margin-bottom:5px;
+
+.app{
+  display:flex;
+  width:100%;
+  height:100vh;
 }
-.sub{
-    text-align:center;
-    color:#9da5b5;
-    margin-bottom:22px;
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+  width:76px;
+  min-width:76px;
+  height:100vh;
+  border-right:1px solid var(--line);
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:13px 8px;
+  z-index:20;
 }
-input,textarea,select{
-    width:100%;
-    background:#0e1118;
-    color:#fff;
-    border:1px solid #303645;
-    border-radius:11px;
-    padding:13px;
-    outline:none;
-    margin:6px 0 10px;
+
+.logo-btn{
+  width:48px;
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:14px;
+  border-radius:15px;
 }
-textarea{min-height:110px;resize:vertical}
-input:focus,textarea:focus,select:focus{
-    border-color:#7c5cff;
+
+.logo-btn:hover{
+  background:var(--hover);
 }
+
+.logo-svg{
+  width:40px;
+  height:40px;
+}
+
+.apps{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:none;
+}
+
+.apps::-webkit-scrollbar{
+  display:none;
+}
+
+.app-item{
+  width:54px;
+  height:54px;
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  transition:.16s ease;
+  cursor:pointer;
+  user-select:none;
+}
+
+.app-item:hover{
+  background:var(--hover);
+}
+
+.app-item.active{
+  background:var(--active);
+}
+
+.app-item.active::before{
+  content:"";
+  position:absolute;
+  left:-8px;
+  width:3px;
+  height:22px;
+  border-radius:0 5px 5px 0;
+  background:var(--accent);
+}
+
+.app-icon{
+  width:29px;
+  height:29px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  overflow:hidden;
+}
+
+.app-icon svg{
+  width:100%;
+  height:100%;
+}
+
+.app-letter{
+  width:29px;
+  height:29px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+}
+
+.tooltip{
+  position:absolute;
+  left:65px;
+  top:50%;
+  transform:translateY(-50%);
+  background:#17171b;
+  color:#fff;
+  padding:7px 10px;
+  border-radius:8px;
+  font-size:12px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:.12s;
+  z-index:100;
+}
+
+.app-item:hover .tooltip{
+  opacity:1;
+}
+
+.add-app{
+  width:48px;
+  height:48px;
+  margin-top:10px;
+  border:1px dashed #d5d5dc;
+  border-radius:14px;
+  color:#686872;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  transition:.15s;
+}
+
+.add-app:hover{
+  background:var(--hover);
+  color:var(--accent);
+  border-color:var(--accent);
+}
+
+.sidebar-spacer{
+  flex:1;
+}
+
+.bottom-tools{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  padding-top:12px;
+  border-top:1px solid var(--line);
+}
+
+.tool{
+  width:54px;
+  height:50px;
+  border-radius:14px;
+  color:#777781;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.tool:hover{
+  background:var(--hover);
+  color:#222;
+}
+
+.tool.active{
+  background:var(--active);
+  color:var(--accent);
+}
+
+.tool svg{
+  width:21px;
+  height:21px;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+  flex:1;
+  min-width:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:#fff;
+}
+
+.topbar{
+  height:64px;
+  min-height:64px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+}
+
+.page-title{
+  font-size:15px;
+  font-weight:650;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.search-btn{
+  width:38px;
+  height:38px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#5e5e68;
+}
+
+.search-btn:hover{
+  background:var(--hover);
+  color:#222;
+}
+
+.search-btn svg{
+  width:19px;
+  height:19px;
+}
+
+.content{
+  flex:1;
+  overflow:auto;
+  position:relative;
+}
+
+/* ================= HOME ================= */
+
+.home{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.home-message{
+  color:#777781;
+  font-size:15px;
+  letter-spacing:-.1px;
+}
+
+.home-message .home-mark{
+  width:42px;
+  height:42px;
+  margin:0 auto 16px;
+  opacity:.55;
+}
+
+.home-message p{
+  font-weight:500;
+}
+
+/* ================= NOTES ================= */
+
+.panel{
+  width:100%;
+  height:100%;
+  padding:30px;
+  overflow:auto;
+}
+
+.panel-head{
+  max-width:900px;
+  margin:0 auto 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.panel-title{
+  font-size:22px;
+  font-weight:700;
+}
+
+.panel-subtitle{
+  color:#888891;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.note-wrap{
+  max-width:900px;
+  margin:auto;
+}
+
+.notes{
+  width:100%;
+  min-height:420px;
+  resize:none;
+  outline:none;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  font-size:15px;
+  line-height:1.7;
+  color:#222;
+  background:#fff;
+  box-shadow:0 3px 18px rgba(20,20,30,.035);
+}
+
+.notes:focus{
+  border-color:#d8d3fa;
+}
+
+.save-status{
+  font-size:12px;
+  color:#9999a2;
+  margin-top:9px;
+}
+
+/* ================= SAVED ================= */
+
+.saved-list{
+  max-width:900px;
+  margin:auto;
+}
+
+.saved-empty{
+  border:1px dashed #dddde4;
+  border-radius:15px;
+  padding:35px;
+  text-align:center;
+  color:#9999a2;
+}
+
+.saved-item{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.saved-info{
+  flex:1;
+  min-width:0;
+}
+
+.saved-name{
+  font-size:14px;
+  font-weight:650;
+}
+
+.saved-url{
+  color:#92929b;
+  font-size:12px;
+  margin-top:4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.saved-open{
+  padding:8px 12px;
+  border-radius:9px;
+  background:#f3f2ff;
+  color:var(--accent);
+  font-size:12px;
+  font-weight:600;
+}
+
+.delete-btn{
+  width:32px;
+  height:32px;
+  border-radius:9px;
+  color:#aaa;
+}
+
+.delete-btn:hover{
+  background:#fff0f0;
+  color:var(--danger);
+}
+
+/* ================= SETTINGS ================= */
+
+.settings-card{
+  max-width:900px;
+  margin:auto;
+  border:1px solid var(--line);
+  border-radius:17px;
+  overflow:hidden;
+}
+
+.setting-row{
+  min-height:65px;
+  padding:15px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.setting-row:last-child{
+  border-bottom:0;
+}
+
+.setting-name{
+  font-size:14px;
+  font-weight:600;
+}
+
+.setting-desc{
+  color:#92929b;
+  font-size:12px;
+  margin-top:4px;
+}
+
+.setting-button{
+  padding:9px 13px;
+  border:1px solid #e1e1e6;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.setting-button:hover{
+  background:#f7f7f9;
+}
+
+.setting-button.danger{
+  color:var(--danger);
+}
+
+/* ================= SEARCH ================= */
+
+.search-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(20,20,25,.14);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:92px;
+  z-index:200;
+}
+
+.search-overlay.show{
+  display:flex;
+}
+
+.search-box{
+  width:min(520px,calc(100% - 30px));
+  background:#fff;
+  border:1px solid #e8e8ed;
+  border-radius:17px;
+  box-shadow:0 18px 55px rgba(0,0,0,.13);
+  overflow:hidden;
+}
+
+.search-input-wrap{
+  height:62px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 18px;
+}
+
+.search-input-wrap svg{
+  width:20px;
+  color:#777;
+}
+
+.search-input{
+  flex:1;
+  border:0;
+  outline:0;
+  font-size:15px;
+  color:#222;
+}
+
+.search-input::placeholder{
+  color:#aaaab2;
+}
+
+.search-hint{
+  border-top:1px solid var(--line);
+  padding:11px 18px;
+  color:#9999a2;
+  font-size:11px;
+}
+
+/* ================= MODAL ================= */
+
+.modal-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(20,20,25,.25);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:300;
+}
+
+.modal-bg.show{
+  display:flex;
+}
+
+.modal{
+  width:min(440px,100%);
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.18);
+  padding:22px;
+}
+
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.modal-title{
+  font-size:18px;
+  font-weight:700;
+}
+
+.close{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  color:#888;
+}
+
+.close:hover{
+  background:#f5f5f7;
+}
+
+.form-group{
+  margin-bottom:14px;
+}
+
+.form-label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:#55555e;
+  margin-bottom:7px;
+}
+
+.form-input{
+  width:100%;
+  height:44px;
+  border:1px solid #e4e4e9;
+  border-radius:10px;
+  outline:none;
+  padding:0 12px;
+  font-size:13px;
+}
+
+.form-input:focus{
+  border-color:#bdb5fa;
+}
+
+.form-actions{
+  display:flex;
+  gap:9px;
+  margin-top:20px;
+}
+
 .btn{
-    border:0;
-    border-radius:11px;
-    padding:12px 15px;
-    font-weight:800;
-    background:#7357ff;
-    color:white;
+  flex:1;
+  height:44px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:650;
 }
-.btn:hover{opacity:.9}
-.btn.secondary{background:#272c38}
-.btn.green{background:#168a55}
-.btn.red{background:#b93645}
-.btn.orange{background:#b56a12}
-.btn.full{width:100%}
-.small-btn{
-    padding:7px 10px;
-    border:0;
-    border-radius:8px;
-    background:#292f3c;
-    color:#fff;
-    margin:2px;
+
+.btn-secondary{
+  border:1px solid #e2e2e7;
 }
-.message{
-    margin-top:10px;
-    color:#aeb6c6;
-    line-height:1.5;
+
+.btn-primary{
+  background:#17171b;
+  color:#fff;
 }
-.header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    margin-bottom:18px;
+
+.btn-primary:hover{
+  background:#000;
 }
-.header h1{font-size:22px;margin:0}
-.tabs{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    margin-bottom:15px;
-}
-.tab{
-    white-space:nowrap;
-    border:1px solid #303645;
-    background:#151922;
-    color:#fff;
-    padding:10px 15px;
-    border-radius:10px;
-}
-.tab.active{background:#7357ff;border-color:#7357ff}
-.panel{display:none}
-.panel.active{display:block}
-.grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-    margin-bottom:16px;
-}
-.stat{
-    background:#151922;
-    border:1px solid #292e3a;
-    border-radius:14px;
-    padding:15px;
-}
-.stat b{font-size:22px;display:block}
-.stat span{font-size:12px;color:#929aaa}
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-}
-.full-row{grid-column:1/-1}
-.section-title{
-    font-size:18px;
-    font-weight:900;
-    margin:5px 0 15px;
-}
-.item{
-    background:#151922;
-    border:1px solid #292e3a;
-    border-radius:14px;
-    padding:13px;
-    margin-top:10px;
-}
-.item-top{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-}
-.item-title{
-    font-weight:800;
-    line-height:1.4;
-}
-.meta{
-    color:#929aaa;
-    font-size:12px;
-    margin-top:7px;
-}
-.badge{
-    display:inline-block;
-    padding:4px 8px;
-    border-radius:20px;
-    background:#292f3c;
-    font-size:11px;
-}
-.preview{
-    width:100%;
-    max-height:260px;
-    object-fit:cover;
-    border-radius:10px;
-    margin-top:8px;
-}
-.actions{
-    margin-top:10px;
-    display:flex;
-    flex-wrap:wrap;
-}
-.file-note{
-    font-size:12px;
-    color:#8e97a8;
-}
-.hide{display:none!important}
+
+/* ================= MOBILE ================= */
 
 @media(max-width:650px){
-    .grid{grid-template-columns:1fr 1fr}
-    .form-grid{grid-template-columns:1fr}
-    .full-row{grid-column:auto}
+  .sidebar{
+    width:64px;
+    min-width:64px;
+    padding:10px 5px;
+  }
+
+  .logo-btn{
+    width:44px;
+    height:44px;
+  }
+
+  .app-item{
+    width:48px;
+    height:48px;
+  }
+
+  .tool{
+    width:48px;
+    height:46px;
+  }
+
+  .add-app{
+    width:44px;
+    height:44px;
+  }
+
+  .topbar{
+    height:58px;
+    min-height:58px;
+    padding:0 15px;
+  }
+
+  .panel{
+    padding:20px 14px;
+  }
+
+  .home-message{
+    padding:20px;
+  }
+
+  .notes{
+    min-height:calc(100vh - 150px);
+  }
+
+  .tooltip{
+    display:none;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     LOGIN
-===================================================== -->
-<div id="loginScreen" class="screen">
-<div class="auth-wrap">
-<div class="card auth-card">
+<div class="app">
 
-    <div class="logo">ONE MINUTE NEWS</div>
-    <div class="sub">Management Login</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-    <form id="loginForm">
-
-        <input
-            id="loginEmail"
-            type="email"
-            placeholder="Manager email"
-            required
-        >
-
-        <input
-            id="loginPassword"
-            type="password"
-            placeholder="Password"
-            required
-        >
-
-        <button class="btn full" type="submit">
-            Login
-        </button>
-
-    </form>
-
-    <button
-        id="forgotPasswordBtn"
-        class="btn secondary full"
-        style="margin-top:10px"
-        type="button">
-        Forgot Password?
+    <!-- LOOPIN LOGO -->
+    <button class="logo-btn" onclick="showHome()" title="LOOPIN">
+      <svg class="logo-svg" viewBox="0 0 50 50" fill="none">
+        <rect x="3" y="3" width="44" height="44" rx="14" fill="#17171B"/>
+        <path d="M13 25C13 17.8 18.5 13 25.2 13C31.8 13 37 17.7 37 24.9C37 32 31.8 37 25 37C18.4 37 13 32.1 13 25Z"
+              stroke="white" stroke-width="3.2"/>
+        <path d="M20 25C20 21.9 22.2 20 25.2 20C28.2 20 30 22 30 25C30 28 28.1 30 25 30C22.1 30 20 28 20 25Z"
+              stroke="#8B7CFF" stroke-width="2.6"/>
+        <circle cx="35.5" cy="14.5" r="3" fill="#8B7CFF"/>
+      </svg>
     </button>
 
-    <div id="loginMessage" class="message"></div>
+    <div class="apps" id="apps"></div>
 
-</div>
-</div>
-</div>
+    <button class="add-app" onclick="openAddApp()" title="Add App">+</button>
 
+    <div class="sidebar-spacer"></div>
 
-<!-- =====================================================
-     FORGOT PASSWORD
-===================================================== -->
-<div id="forgotScreen" class="screen">
-<div class="auth-wrap">
-<div class="card auth-card">
+    <div class="bottom-tools">
 
-    <div class="logo">Reset Password</div>
-    <div class="sub">
-        We'll send a secure reset link to your email.
+      <button class="tool" id="notesTool" onclick="openNotes()" title="Notes">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 3.5h9l3 3V20.5H6A2 2 0 0 1 4 18.5v-13a2 2 0 0 1 2-2Z"
+                stroke="currentColor" stroke-width="1.7"/>
+          <path d="M14 3.5v4h4M8 11h6M8 14.5h6M8 18h4"
+                stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="tooltip">Notes</span>
+      </button>
+
+      <button class="tool" id="savedTool" onclick="openSaved()" title="Saved URLs">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M7 5.5A2.5 2.5 0 0 1 9.5 3h9A2.5 2.5 0 0 1 21 5.5v9A2.5 2.5 0 0 1 18.5 17h-9A2.5 2.5 0 0 1 7 14.5v-9Z"
+                stroke="currentColor" stroke-width="1.7"/>
+          <path d="M4 8v10.5A2.5 2.5 0 0 0 6.5 21H17M10 8.5h6M10 12h6"
+                stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <span class="tooltip">Saved URLs</span>
+      </button>
+
+      <button class="tool" id="settingsTool" onclick="openSettings()" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 8.5A3.5 3.5 0 1 0 12 15.5A3.5 3.5 0 0 0 12 8.5Z"
+                stroke="currentColor" stroke-width="1.7"/>
+          <path d="M19 13.3a7.3 7.3 0 0 0 0-2.6l2-1.5-2-3.4-2.4 1a8 8 0 0 0-2.2-1.3L14 3h-4l-.4 2.5a8 8 0 0 0-2.2 1.3L5 5.8 3 9.2l2 1.5a7.3 7.3 0 0 0 0 2.6l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 2.2 1.3L10 21h4l.4-2.5a8 8 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.5Z"
+                stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span class="tooltip">Settings</span>
+      </button>
+
     </div>
+  </aside>
 
-    <form id="forgotForm">
+  <!-- MAIN -->
+  <main class="main">
 
-        <input
-            id="forgotEmail"
-            type="email"
-            placeholder="Manager email"
-            required
-        >
+    <header class="topbar">
+      <div class="page-title" id="pageTitle">LOOPIN</div>
 
-        <button class="btn full" type="submit">
-            Send Reset Link
+      <div class="top-actions">
+        <button class="search-btn" onclick="openSearch()" title="Search Google">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="10.8" cy="10.8" r="6.8"
+                    stroke="currentColor" stroke-width="1.8"/>
+            <path d="m16 16 5 5"
+                  stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round"/>
+          </svg>
         </button>
+      </div>
+    </header>
 
-    </form>
+    <section class="content" id="content">
 
-    <button
-        id="backToLoginBtn"
-        class="btn secondary full"
-        style="margin-top:10px"
-        type="button">
-        ← Back to Login
-    </button>
+      <!-- HOME -->
+      <div class="home" id="homePage">
+        <div class="home-message">
 
-    <div id="forgotMessage" class="message"></div>
+          <svg class="home-mark" viewBox="0 0 50 50" fill="none">
+            <rect x="4" y="4" width="42" height="42" rx="13" fill="#17171B"/>
+            <path d="M14 25C14 18.5 19 14 25.2 14C31.3 14 36 18.5 36 25C36 31.5 31.2 36 25 36C19 36 14 31.5 14 25Z"
+                  stroke="white" stroke-width="3"/>
+            <circle cx="34" cy="15.5" r="3" fill="#8B7CFF"/>
+          </svg>
 
-</div>
-</div>
-</div>
+          <p>Select an app from the left to get started.</p>
 
+        </div>
+      </div>
 
-<!-- =====================================================
-     RESET PASSWORD
-===================================================== -->
-<div id="resetScreen" class="screen">
-<div class="auth-wrap">
-<div class="card auth-card">
+      <!-- NOTES -->
+      <div class="panel" id="notesPage" style="display:none">
 
-    <div class="logo">🔐 New Password</div>
-    <div class="sub">
-        Create a new manager password.
-    </div>
-
-    <form id="resetForm">
-
-        <input
-            id="newPassword"
-            type="password"
-            minlength="6"
-            placeholder="New password"
-            required
-        >
-
-        <input
-            id="confirmPassword"
-            type="password"
-            minlength="6"
-            placeholder="Confirm new password"
-            required
-        >
-
-        <button class="btn full" type="submit">
-            Update Password
-        </button>
-
-    </form>
-
-    <div id="resetMessage" class="message"></div>
-
-</div>
-</div>
-</div>
-
-
-<!-- =====================================================
-     DASHBOARD
-===================================================== -->
-<div id="dashboardScreen" class="screen">
-<div class="container">
-
-    <div class="header">
-        <h1>ONE MINUTE NEWS</h1>
-
-        <button
-            id="logoutBtn"
-            class="btn red">
-            Logout
-        </button>
-    </div>
-
-    <div class="grid">
-
-        <div class="stat">
-            <b id="statNews">0</b>
-            <span>News</span>
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Notes</div>
+            <div class="panel-subtitle">Your notes are saved automatically.</div>
+          </div>
         </div>
 
-        <div class="stat">
-            <b id="statVideos">0</b>
-            <span>Videos</span>
+        <div class="note-wrap">
+          <textarea
+            id="notes"
+            class="notes"
+            placeholder="Start writing..."
+            oninput="saveNotes()"></textarea>
+
+          <div class="save-status" id="saveStatus">
+            Saved locally
+          </div>
         </div>
 
-        <div class="stat">
-            <b id="statTrending">0</b>
-            <span>Trending</span>
+      </div>
+
+      <!-- SAVED -->
+      <div class="panel" id="savedPage" style="display:none">
+
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Saved URLs</div>
+            <div class="panel-subtitle">Keep useful websites in one place.</div>
+          </div>
         </div>
 
-        <div class="stat">
-            <b id="statPublished">0</b>
-            <span>Published</span>
+        <div class="saved-list" id="savedList"></div>
+
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="panel" id="settingsPage" style="display:none">
+
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Settings</div>
+            <div class="panel-subtitle">Customize your LOOPIN workspace.</div>
+          </div>
         </div>
 
-    </div>
+        <div class="settings-card">
 
-    <div class="tabs">
-
-        <button
-            class="tab active"
-            data-tab="newsPanel">
-            News
-        </button>
-
-        <button
-            class="tab"
-            data-tab="videoPanel">
-            Videos
-        </button>
-
-        <button
-            class="tab"
-            data-tab="trendingPanel">
-            Trending
-        </button>
-
-    </div>
-
-
-    <!-- =================================================
-         NEWS
-    ================================================== -->
-    <section id="newsPanel" class="panel active">
-
-        <div class="card">
-
-            <div class="section-title">
-                📰 News Manager
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Apps</div>
+              <div class="setting-desc">
+                Restore the default app arrangement.
+              </div>
             </div>
 
-            <form id="newsForm">
+            <button class="setting-button" onclick="resetApps()">
+              Reset Apps
+            </button>
+          </div>
 
-                <input type="hidden" id="newsId">
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Notes</div>
+              <div class="setting-desc">
+                Delete your locally stored notes.
+              </div>
+            </div>
 
-                <div class="form-grid">
+            <button class="setting-button danger" onclick="clearNotes()">
+              Clear Notes
+            </button>
+          </div>
 
-                    <div>
-                        <label>Category</label>
-                        <select id="newsCategory">
-                            <option>Latest</option>
-                            <option>India</option>
-                            <option>World</option>
-                            <option>Telangana</option>
-                            <option>Andhra Pradesh</option>
-                            <option>Politics</option>
-                            <option>Business</option>
-                            <option>Sports</option>
-                            <option>Technology</option>
-                            <option>Entertainment</option>
-                            <option>Education</option>
-                            <option>Jobs</option>
-                        </select>
-                    </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-name">Saved URLs</div>
+              <div class="setting-desc">
+                Remove all saved website links.
+              </div>
+            </div>
 
-                    <div>
-                        <label>Tag</label>
-                        <input
-                            id="newsTag"
-                            placeholder="BREAKING / EXCLUSIVE"
-                        >
-                    </div>
-
-                    <div class="full-row">
-                        <label>Headline</label>
-                        <input
-                            id="newsTitle"
-                            placeholder="News headline"
-                            required
-                        >
-                    </div>
-
-                    <div class="full-row">
-                        <label>News Script / Description</label>
-                        <textarea
-                            id="newsDescription"
-                            placeholder="Complete news script..."
-                            required></textarea>
-                    </div>
-
-                    <div>
-                        <label>Source</label>
-                        <input
-                            id="newsSource"
-                            placeholder="Source name"
-                        >
-                    </div>
-
-                    <div>
-                        <label>HD Image</label>
-                        <input
-                            id="newsImage"
-                            type="file"
-                            accept="image/*"
-                        >
-                        <div class="file-note">
-                            JPG / PNG / WEBP
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="newsImagePreview"></div>
-
-                <div class="actions">
-
-                    <button
-                        class="btn secondary"
-                        type="submit"
-                        name="status"
-                        value="draft">
-                        Save Draft
-                    </button>
-
-                    <button
-                        class="btn orange"
-                        type="submit"
-                        name="status"
-                        value="demo_approved">
-                        Demo Approval
-                    </button>
-
-                    <button
-                        class="btn green"
-                        type="submit"
-                        name="status"
-                        value="final_approved">
-                        Final Approval
-                    </button>
-
-                    <button
-                        id="newsCancelEdit"
-                        class="small-btn hide"
-                        type="button">
-                        Cancel Edit
-                    </button>
-
-                </div>
-
-                <div id="newsMessage" class="message"></div>
-
-            </form>
+            <button class="setting-button danger" onclick="clearSaved()">
+              Clear URLs
+            </button>
+          </div>
 
         </div>
 
-        <div style="height:15px"></div>
-
-        <div class="section-title">
-            Existing News
-        </div>
-
-        <div id="newsList"></div>
+      </div>
 
     </section>
 
-
-    <!-- =================================================
-         VIDEOS
-    ================================================== -->
-    <section id="videoPanel" class="panel">
-
-        <div class="card">
-
-            <div class="section-title">
-                🎬 Video Manager
-            </div>
-
-            <form id="videoForm">
-
-                <input type="hidden" id="videoId">
-
-                <div class="form-grid">
-
-                    <div>
-                        <label>Tag</label>
-                        <input
-                            id="videoTag"
-                            placeholder="TRENDING"
-                        >
-                    </div>
-
-                    <div>
-                        <label>Thumbnail</label>
-                        <input
-                            id="videoThumbnail"
-                            type="file"
-                            accept="image/*"
-                        >
-                    </div>
-
-                    <div class="full-row">
-                        <label>Title</label>
-                        <input
-                            id="videoTitle"
-                            placeholder="Video title"
-                            required
-                        >
-                    </div>
-
-                    <div class="full-row">
-                        <label>Description</label>
-                        <textarea
-                            id="videoDescription"
-                            placeholder="Video description"></textarea>
-                    </div>
-
-                    <div class="full-row">
-                        <label>Video</label>
-                        <input
-                            id="videoFile"
-                            type="file"
-                            accept="video/*"
-                        >
-                        <div class="file-note">
-                            MP4 / WEBM recommended
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="videoPreview"></div>
-
-                <div class="actions">
-
-                    <button
-                        class="btn secondary"
-                        type="submit"
-                        name="status"
-                        value="draft">
-                        Save Draft
-                    </button>
-
-                    <button
-                        class="btn orange"
-                        type="submit"
-                        name="status"
-                        value="demo_approved">
-                        Demo
-                    </button>
-
-                    <button
-                        class="btn green"
-                        type="submit"
-                        name="status"
-                        value="final_approved">
-                        Publish
-                    </button>
-
-                    <button
-                        id="videoCancelEdit"
-                        class="small-btn hide"
-                        type="button">
-                        Cancel Edit
-                    </button>
-
-                </div>
-
-                <div id="videoMessage" class="message"></div>
-
-            </form>
-
-        </div>
-
-        <div style="height:15px"></div>
-
-        <div class="section-title">
-            Existing Videos
-        </div>
-
-        <div id="videoList"></div>
-
-    </section>
+  </main>
+</div>
 
 
-    <!-- =================================================
-         TRENDING
-    ================================================== -->
-    <section id="trendingPanel" class="panel">
+<!-- SEARCH -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearchOutside(event)">
 
-        <div class="card">
+  <div class="search-box">
 
-            <div class="section-title">
-                🔥 Trending Manager
-            </div>
+    <div class="search-input-wrap">
 
-            <form id="trendingForm">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="10.8" cy="10.8" r="6.8"
+                stroke="currentColor" stroke-width="1.8"/>
+        <path d="m16 16 5 5"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"/>
+      </svg>
 
-                <input type="hidden" id="trendingId">
+      <input
+        id="searchInput"
+        class="search-input"
+        placeholder="Search Google..."
+        autocomplete="off"
+        onkeydown="handleSearch(event)"
+      >
 
-                <input
-                    id="trendingTitle"
-                    placeholder="Trending title"
-                    required
-                >
+    </div>
 
-                <div class="form-grid">
+    <div class="search-hint">
+      Type your search and press Enter · Esc to close
+    </div>
 
-                    <div>
-                        <input
-                            id="trendingTime"
-                            placeholder="2 min ago"
-                        >
-                    </div>
-
-                    <div>
-                        <input
-                            id="trendingRank"
-                            type="number"
-                            placeholder="Rank"
-                            value="1"
-                        >
-                    </div>
-
-                </div>
-
-                <label>
-                    <input
-                        id="trendingPublished"
-                        type="checkbox"
-                        checked
-                        style="width:auto">
-                    Published
-                </label>
-
-                <div class="actions">
-
-                    <button
-                        class="btn green"
-                        type="submit">
-                        Save Trending
-                    </button>
-
-                    <button
-                        id="trendingCancelEdit"
-                        class="small-btn hide"
-                        type="button">
-                        Cancel Edit
-                    </button>
-
-                </div>
-
-                <div id="trendingMessage" class="message"></div>
-
-            </form>
-
-        </div>
-
-        <div style="height:15px"></div>
-
-        <div class="section-title">
-            Existing Trending
-        </div>
-
-        <div id="trendingList"></div>
-
-    </section>
+  </div>
 
 </div>
+
+
+<!-- ADD APP MODAL -->
+<div class="modal-bg" id="addModal">
+
+  <div class="modal">
+
+    <div class="modal-head">
+      <div class="modal-title">Add App</div>
+
+      <button class="close" onclick="closeAddApp()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">App name</label>
+      <input
+        id="appName"
+        class="form-input"
+        placeholder="Example: Notion"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Website URL</label>
+      <input
+        id="appUrl"
+        class="form-input"
+        placeholder="https://example.com"
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Icon letter</label>
+      <input
+        id="appLetter"
+        class="form-input"
+        maxlength="2"
+        placeholder="N"
+      >
+    </div>
+
+    <div class="form-actions">
+
+      <button class="btn btn-secondary" onclick="closeAddApp()">
+        Cancel
+      </button>
+
+      <button class="btn btn-primary" onclick="addApp()">
+        Add App
+      </button>
+
+    </div>
+
+  </div>
+
 </div>
 
 
 <script>
-/* =========================================================
-   SUPABASE
-========================================================= */
-
-const SUPABASE_URL =
-    "https://eaowxilhfzyukzetgqxo.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_Z3xsADypaOjX8GEQEOLUdg_vbxynHRx";
-
-const db =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY,
-        {
-            auth:{
-                persistSession:true,
-                autoRefreshToken:true,
-                detectSessionInUrl:true,
-                flowType:"pkce"
-            }
-        }
-    );
-
 
 /* =========================================================
-   AUTH
+   DEFAULT APPS
 ========================================================= */
 
-const ALLOWED_EMAIL =
-    "rammaheshbabu123@gmail.com";
+const defaultApps = [
+
+  {
+    id:"whatsapp",
+    name:"WhatsApp",
+    url:"https://web.whatsapp.com/",
+    type:"whatsapp"
+  },
+
+  {
+    id:"instagram",
+    name:"Instagram",
+    url:"https://www.instagram.com/",
+    type:"instagram"
+  },
+
+  {
+    id:"gmail",
+    name:"Gmail",
+    url:"https://mail.google.com/",
+    type:"gmail"
+  },
+
+  {
+    id:"outlook",
+    name:"Outlook",
+    url:"https://outlook.live.com/",
+    type:"outlook"
+  },
+
+  {
+    id:"linkedin",
+    name:"LinkedIn",
+    url:"https://www.linkedin.com/",
+    type:"linkedin"
+  },
+
+  {
+    id:"copilot",
+    name:"Copilot",
+    url:"https://copilot.microsoft.com/",
+    type:"copilot"
+  },
+
+  {
+    id:"chatgpt",
+    name:"ChatGPT",
+    url:"https://chatgpt.com/",
+    type:"chatgpt"
+  }
+
+];
 
 
-const $ = id =>
-    document.getElementById(id);
+/* =========================================================
+   ICONS
+========================================================= */
 
+function icon(type){
 
-function showOnly(id){
+  if(type==="whatsapp"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="15" fill="#25D366"/>
+        <path d="M22.4 9.8A9 9 0 0 0 7 16.2c0 1.6.4 3.1 1.2 4.4L7 25l4.5-1.2a9 9 0 0 0 4.2 1c5 0 9-4 9-9 0-2.3-.9-4.4-2.3-6Z"
+              fill="white"/>
+        <path d="M12.1 11.8c.3-.3.6-.3.9-.1l1.3 1c.3.2.4.5.2.8l-.6.8c.8 1.5 2 2.5 3.5 3.2l.7-.7c.2-.2.6-.3.9-.1l1.4.8c.3.2.4.5.3.8-.4 1.2-1.4 1.8-2.5 1.5-3.2-.8-5.9-3-7.4-6-.5-.9-.2-1.7.3-2Z"
+              fill="#25D366"/>
+      </svg>
+    `;
+  }
 
-    document
-        .querySelectorAll(".screen")
-        .forEach(x => {
-            x.style.display = "none";
-        });
+  if(type==="instagram"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <defs>
+          <linearGradient id="ig" x1="0" y1="1" x2="1" y2="0">
+            <stop stop-color="#FEDA75"/>
+            <stop offset=".35" stop-color="#FA7E1E"/>
+            <stop offset=".7" stop-color="#D62976"/>
+            <stop offset="1" stop-color="#4F5BD5"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#ig)"/>
+        <rect x="8" y="8" width="16" height="16" rx="5"
+              fill="none" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="16" r="4"
+                fill="none" stroke="white" stroke-width="2"/>
+        <circle cx="22" cy="10" r="1.4" fill="white"/>
+      </svg>
+    `;
+  }
 
-    const el = $(id);
+  if(type==="gmail"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <rect x="3" y="5" width="26" height="22" rx="5" fill="#fff"/>
+        <path d="M5 8l11 8L27 8v14H5V8Z"
+              fill="none" stroke="#EA4335" stroke-width="2.5"/>
+        <path d="M5 9l11 8 11-8"
+              fill="none" stroke="#4285F4" stroke-width="2.5"/>
+      </svg>
+    `;
+  }
 
-    if(el)
-        el.style.display = "block";
+  if(type==="outlook"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <rect x="3" y="7" width="19" height="18" rx="3" fill="#0A64D8"/>
+        <path d="M16 9h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H16V9Z"
+              fill="#1674E8"/>
+        <path d="M18 12l6 4 5-4"
+              fill="none" stroke="white" stroke-width="1.5"/>
+        <text x="7" y="20" fill="white"
+              font-size="10" font-weight="700">O</text>
+      </svg>
+    `;
+  }
+
+  if(type==="linkedin"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <rect x="2" y="2" width="28" height="28" rx="5" fill="#0A66C2"/>
+        <circle cx="9" cy="10" r="2" fill="white"/>
+        <path d="M7.5 14v10M13 24V14m0 4c.5-3 7-4 7 1v5"
+              stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  if(type==="copilot"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <defs>
+          <linearGradient id="cp" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#6D5DFB"/>
+            <stop offset="1" stop-color="#25C6DA"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="28" height="28" rx="9" fill="url(#cp)"/>
+        <path d="M9 18c1-5 4-7 7-4l2 2c2 2 4 1 5-2"
+              fill="none" stroke="white" stroke-width="2.2"
+              stroke-linecap="round"/>
+        <path d="M9 21c2 2 4 2 6 0l2-2c2-2 4-1 6 1"
+              fill="none" stroke="white" stroke-width="2.2"
+              stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  if(type==="chatgpt"){
+    return `
+      <svg viewBox="0 0 32 32">
+        <rect x="2" y="2" width="28" height="28" rx="9" fill="#111"/>
+        <path d="M16 8a5 5 0 0 1 4.8 6.2A5 5 0 0 1 23 23a5 5 0 0 1-7 1.8A5 5 0 0 1 8.2 20a5 5 0 0 1 1-7.2A5 5 0 0 1 16 8Z"
+              fill="none" stroke="white" stroke-width="1.5"/>
+        <path d="M12 11l8 4m-9 6 9-6m-4 9V15m-7 2 8 4"
+              stroke="white" stroke-width="1.2"
+              stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  return "";
 }
-
-
-function redirectUrl(){
-
-    return (
-        window.location.origin +
-        window.location.pathname
-    );
-}
-
-
-/* =========================================================
-   ADMIN CHECK
-========================================================= */
-
-async function verifyManager(){
-
-    const {
-        data:{user},
-        error
-    } =
-    await db.auth.getUser();
-
-    if(error || !user)
-        return false;
-
-    if(
-        !user.email ||
-        user.email.toLowerCase() !==
-        ALLOWED_EMAIL.toLowerCase()
-    ){
-
-        await db.auth.signOut();
-
-        alert("Access denied.");
-
-        showOnly("loginScreen");
-
-        return false;
-    }
-
-    const {
-        data:admin,
-        error:adminError
-    } =
-    await db
-        .from("admins")
-        .select("id,email,role")
-        .eq("id",user.id)
-        .maybeSingle();
-
-    if(adminError){
-
-        console.error(adminError);
-
-        /*
-          If admins RLS is blocking SELECT,
-          email verification still protects this
-          frontend, but production RLS should also
-          protect INSERT/UPDATE/DELETE.
-        */
-
-        return true;
-    }
-
-    if(!admin){
-
-        await db.auth.signOut();
-
-        alert("Manager account is not authorized.");
-
-        showOnly("loginScreen");
-
-        return false;
-    }
-
-    return true;
-}
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-$("loginForm").addEventListener(
-"submit",
-async e => {
-
-    e.preventDefault();
-
-    const email =
-        $("loginEmail").value.trim();
-
-    const password =
-        $("loginPassword").value;
-
-    $("loginMessage").textContent =
-        "Signing in...";
-
-    if(
-        email.toLowerCase() !==
-        ALLOWED_EMAIL.toLowerCase()
-    ){
-
-        $("loginMessage").textContent =
-            "This account is not authorized.";
-
-        return;
-    }
-
-    const {
-        data,
-        error
-    } =
-    await db.auth.signInWithPassword({
-        email,
-        password
-    });
-
-    if(error){
-
-        $("loginMessage").textContent =
-            error.message;
-
-        return;
-    }
-
-    const ok =
-        await verifyManager();
-
-    if(!ok)
-        return;
-
-    $("loginMessage").textContent = "";
-
-    showOnly("dashboardScreen");
-
-    await loadAll();
-});
-
-
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
-
-$("forgotPasswordBtn").onclick = () => {
-
-    const email =
-        $("loginEmail").value.trim();
-
-    $("forgotEmail").value =
-        email || ALLOWED_EMAIL;
-
-    $("forgotMessage").textContent = "";
-
-    showOnly("forgotScreen");
-};
-
-
-$("backToLoginBtn").onclick = () => {
-
-    $("forgotMessage").textContent = "";
-
-    showOnly("loginScreen");
-};
-
-
-$("forgotForm").addEventListener(
-"submit",
-async e => {
-
-    e.preventDefault();
-
-    const email =
-        $("forgotEmail").value.trim();
-
-    const message =
-        $("forgotMessage");
-
-    message.textContent =
-        "Sending reset link...";
-
-    if(
-        email.toLowerCase() !==
-        ALLOWED_EMAIL.toLowerCase()
-    ){
-
-        message.textContent =
-            "This email is not authorized.";
-
-        return;
-    }
-
-    const {
-        error
-    } =
-    await db.auth.resetPasswordForEmail(
-        email,
-        {
-            redirectTo:redirectUrl()
-        }
-    );
-
-    if(error){
-
-        console.error(error);
-
-        message.textContent =
-            "Error sending recovery email: " +
-            error.message;
-
-        return;
-    }
-
-    message.innerHTML =
-        "✅ Reset link sent.<br><br>" +
-        "Check your email and open the reset link.";
-
-});
-
-
-/* =========================================================
-   RESET PASSWORD
-========================================================= */
-
-$("resetForm").addEventListener(
-"submit",
-async e => {
-
-    e.preventDefault();
-
-    const p =
-        $("newPassword").value;
-
-    const cp =
-        $("confirmPassword").value;
-
-    const msg =
-        $("resetMessage");
-
-    if(p.length < 6){
-
-        msg.textContent =
-            "Password must be at least 6 characters.";
-
-        return;
-    }
-
-    if(p !== cp){
-
-        msg.textContent =
-            "Passwords do not match.";
-
-        return;
-    }
-
-    msg.textContent =
-        "Updating password...";
-
-    const {
-        error
-    } =
-    await db.auth.updateUser({
-        password:p
-    });
-
-    if(error){
-
-        msg.textContent =
-            error.message;
-
-        return;
-    }
-
-    msg.textContent =
-        "✅ Password updated successfully.";
-
-    $("newPassword").value = "";
-    $("confirmPassword").value = "";
-
-    setTimeout(
-    async () => {
-
-        await db.auth.signOut();
-
-        showOnly("loginScreen");
-
-    },1800);
-
-});
-
-
-/* =========================================================
-   RECOVERY CODE
-========================================================= */
-
-async function handleRecoveryCode(){
-
-    const url =
-        new URL(window.location.href);
-
-    const code =
-        url.searchParams.get("code");
-
-    if(!code)
-        return false;
-
-    const {
-        data,
-        error
-    } =
-    await db.auth.exchangeCodeForSession(
-        code
-    );
-
-    if(error){
-
-        console.error(error);
-
-        alert(
-            "Reset link is invalid or expired."
-        );
-
-        showOnly("loginScreen");
-
-        return false;
-    }
-
-    if(data.session){
-
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-
-        showOnly("resetScreen");
-
-        return true;
-    }
-
-    return false;
-}
-
-
-/* =========================================================
-   RECOVERY HASH
-========================================================= */
-
-async function handleRecoveryHash(){
-
-    const hash =
-        window.location.hash;
-
-    if(!hash)
-        return false;
-
-    const params =
-        new URLSearchParams(
-            hash.substring(1)
-        );
-
-    if(
-        params.get("type") !==
-        "recovery"
-    )
-        return false;
-
-    const {
-        data:{session}
-    } =
-    await db.auth.getSession();
-
-    if(session){
-
-        window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-        );
-
-        showOnly("resetScreen");
-
-        return true;
-    }
-
-    return false;
-}
-
-
-/* =========================================================
-   AUTH STATE
-========================================================= */
-
-db.auth.onAuthStateChange(
-async (event,session) => {
-
-    if(
-        event ===
-        "PASSWORD_RECOVERY"
-    ){
-
-        showOnly("resetScreen");
-
-        return;
-    }
-
-    if(
-        event ===
-        "SIGNED_OUT"
-    ){
-
-        showOnly("loginScreen");
-
-        return;
-    }
-
-});
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-$("logoutBtn").onclick =
-async () => {
-
-    await db.auth.signOut();
-
-    showOnly("loginScreen");
-};
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-document
-.querySelectorAll(".tab")
-.forEach(tab => {
-
-    tab.onclick = () => {
-
-        document
-        .querySelectorAll(".tab")
-        .forEach(x =>
-            x.classList.remove("active")
-        );
-
-        document
-        .querySelectorAll(".panel")
-        .forEach(x =>
-            x.classList.remove("active")
-        );
-
-        tab.classList.add("active");
-
-        $(tab.dataset.tab)
-            .classList.add("active");
-
-    };
-
-});
 
 
 /* =========================================================
    STORAGE
 ========================================================= */
 
-function publicFileUrl(bucket,path){
+const APP_KEY = "loopin_apps_v3";
+const NOTES_KEY = "loopin_notes_v3";
+const SAVED_KEY = "loopin_saved_v3";
 
-    return (
-        SUPABASE_URL +
-        "/storage/v1/object/public/" +
-        bucket +
-        "/" +
-        path
-    );
+
+let apps = loadApps();
+
+
+function loadApps(){
+
+  try{
+
+    const saved = localStorage.getItem(APP_KEY);
+
+    if(saved){
+      return JSON.parse(saved);
+    }
+
+  }catch(e){}
+
+  return JSON.parse(JSON.stringify(defaultApps));
 }
 
 
-async function uploadFile(
-    bucket,
-    file
-){
+function saveApps(){
 
-    if(!file)
-        return null;
+  localStorage.setItem(APP_KEY,JSON.stringify(apps));
 
-    const ext =
-        file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
-
-    const path =
-        crypto.randomUUID() +
-        "." +
-        ext;
-
-    const {
-        error
-    } =
-    await db.storage
-        .from(bucket)
-        .upload(
-            path,
-            file,
-            {
-                upsert:false,
-                contentType:file.type,
-                cacheControl:"31536000"
-            }
-        );
-
-    if(error)
-        throw error;
-
-    return publicFileUrl(
-        bucket,
-        path
-    );
 }
 
 
 /* =========================================================
-   NEWS FORM
+   RENDER APPS
 ========================================================= */
 
-$("newsForm").addEventListener(
-"submit",
-async e => {
+function renderApps(){
 
-    e.preventDefault();
+  const container = document.getElementById("apps");
 
-    const status =
-        e.submitter?.value ||
-        "draft";
+  container.innerHTML = "";
 
-    const id =
-        $("newsId").value.trim();
+  apps.forEach((app,index)=>{
 
-    const message =
-        $("newsMessage");
+    const item = document.createElement("div");
 
-    try{
+    item.className = "app-item";
 
-        message.textContent =
-            "Saving news...";
+    item.draggable = true;
 
-        let imageUrl = null;
+    item.dataset.index = index;
 
-        const file =
-            $("newsImage").files[0];
+    item.title = app.name;
 
-        if(file){
+    let visual = "";
 
-            imageUrl =
-                await uploadFile(
-                    "news-images",
-                    file
-                );
-        }
+    if(app.type){
 
-        const {
-            data:{user}
-        } =
-        await db.auth.getUser();
-
-        const payload = {
-
-            category:
-                $("newsCategory").value,
-
-            tag:
-                $("newsTag").value.trim(),
-
-            title:
-                $("newsTitle").value.trim(),
-
-            description:
-                $("newsDescription").value.trim(),
-
-            source:
-                $("newsSource").value.trim(),
-
-            approval_status:
-                status,
-
-            published:
-                status === "final_approved",
-
-            updated_at:
-                new Date().toISOString(),
-
-            updated_by:
-                user?.id || null
-
-        };
-
-        if(imageUrl)
-            payload.image_url = imageUrl;
-
-
-        if(id){
-
-            const {
-                error
-            } =
-            await db
-                .from("news")
-                .update(payload)
-                .eq("id",id);
-
-            if(error)
-                throw error;
-
-        }else{
-
-            payload.created_by =
-                user?.id || null;
-
-            const {
-                error
-            } =
-            await db
-                .from("news")
-                .insert(payload);
-
-            if(error)
-                throw error;
-        }
-
-        message.textContent =
-            "✅ News saved successfully.";
-
-        resetNewsForm();
-
-        await loadNews();
-
-        await loadStats();
-
-    }catch(err){
-
-        console.error(err);
-
-        message.textContent =
-            "Error: " + err.message;
-    }
-
-});
-
-
-/* =========================================================
-   NEWS LIST
-========================================================= */
-
-async function loadNews(){
-
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("news")
-        .select("*")
-        .order(
-            "published_at",
-            {ascending:false}
-        );
-
-    if(error){
-
-        console.error(error);
-
-        $("newsList").innerHTML =
-            `<div class="item">
-                ${error.message}
-             </div>`;
-
-        return;
-    }
-
-    $("newsList").innerHTML = "";
-
-    if(!data?.length){
-
-        $("newsList").innerHTML =
-            `<div class="item">
-                No news found.
-             </div>`;
-
-        return;
-    }
-
-    data.forEach(n => {
-
-        const item =
-            document.createElement("div");
-
-        item.className = "item";
-
-        item.innerHTML = `
-
-            <div class="item-top">
-
-                <div class="item-title">
-                    ${escapeHtml(n.title || "")}
-                </div>
-
-                <span class="badge">
-                    ${escapeHtml(
-                        n.approval_status ||
-                        (n.published
-                            ?"published"
-                            :"draft")
-                    )}
-                </span>
-
-            </div>
-
-            ${
-                n.image_url
-                ? `<img class="preview"
-                     src="${escapeAttr(n.image_url)}">`
-                : ""
-            }
-
-            <div class="meta">
-                ${escapeHtml(n.category || "")}
-                ·
-                ${escapeHtml(n.tag || "")}
-                ·
-                ${escapeHtml(n.source || "")}
-            </div>
-
-            <div class="meta">
-                Views: ${n.views || 0}
-                · Likes: ${n.likes || 0}
-                · Shares: ${n.shares || 0}
-            </div>
-
-            <div class="actions">
-
-                <button
-                    class="small-btn"
-                    data-edit="${n.id}">
-                    Edit
-                </button>
-
-                <button
-                    class="small-btn green"
-                    data-publish="${n.id}">
-                    Publish
-                </button>
-
-                <button
-                    class="small-btn orange"
-                    data-demo="${n.id}">
-                    Demo
-                </button>
-
-                <button
-                    class="small-btn red"
-                    data-delete="${n.id}">
-                    Delete
-                </button>
-
-            </div>
-        `;
-
-        $("newsList").appendChild(item);
-    });
-
-    $("newsList")
-    .querySelectorAll("[data-edit]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            editNews(btn.dataset.edit)
-    );
-
-    $("newsList")
-    .querySelectorAll("[data-publish]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            changeNewsStatus(
-                btn.dataset.publish,
-                "final_approved"
-            )
-    );
-
-    $("newsList")
-    .querySelectorAll("[data-demo]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            changeNewsStatus(
-                btn.dataset.demo,
-                "demo_approved"
-            )
-    );
-
-    $("newsList")
-    .querySelectorAll("[data-delete]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            deleteNews(btn.dataset.delete)
-    );
-}
-
-
-/* =========================================================
-   EDIT NEWS
-========================================================= */
-
-async function editNews(id){
-
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("news")
-        .select("*")
-        .eq("id",id)
-        .single();
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    $("newsId").value =
-        data.id;
-
-    $("newsCategory").value =
-        data.category || "Latest";
-
-    $("newsTag").value =
-        data.tag || "";
-
-    $("newsTitle").value =
-        data.title || "";
-
-    $("newsDescription").value =
-        data.description || "";
-
-    $("newsSource").value =
-        data.source || "";
-
-    $("newsCancelEdit")
-        .classList.remove("hide");
-
-    document
-        .querySelector('[data-tab="newsPanel"]')
-        ?.click();
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
-}
-
-
-/* =========================================================
-   NEWS STATUS
-========================================================= */
-
-async function changeNewsStatus(
-    id,
-    status
-){
-
-    const {
-        error
-    } =
-    await db
-        .from("news")
-        .update({
-            approval_status:status,
-            published:
-                status === "final_approved",
-            updated_at:
-                new Date().toISOString()
-        })
-        .eq("id",id);
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadNews();
-    await loadStats();
-}
-
-
-/* =========================================================
-   DELETE NEWS
-========================================================= */
-
-async function deleteNews(id){
-
-    if(!confirm(
-        "Delete this news permanently?"
-    ))
-        return;
-
-    const {
-        error
-    } =
-    await db
-        .from("news")
-        .delete()
-        .eq("id",id);
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadNews();
-    await loadStats();
-}
-
-
-function resetNewsForm(){
-
-    $("newsForm").reset();
-
-    $("newsId").value = "";
-
-    $("newsCategory").value =
-        "Latest";
-
-    $("newsCancelEdit")
-        .classList.add("hide");
-
-    $("newsImagePreview").innerHTML = "";
-}
-
-
-$("newsCancelEdit").onclick =
-resetNewsForm;
-
-
-/* =========================================================
-   VIDEO FORM
-========================================================= */
-
-$("videoForm").addEventListener(
-"submit",
-async e => {
-
-    e.preventDefault();
-
-    const status =
-        e.submitter?.value ||
-        "draft";
-
-    const id =
-        $("videoId").value.trim();
-
-    const message =
-        $("videoMessage");
-
-    try{
-
-        message.textContent =
-            "Saving video...";
-
-        let videoUrl = null;
-        let thumbnailUrl = null;
-
-        const videoFile =
-            $("videoFile").files[0];
-
-        const thumbnailFile =
-            $("videoThumbnail").files[0];
-
-        if(videoFile){
-
-            videoUrl =
-                await uploadFile(
-                    "news-videos",
-                    videoFile
-                );
-        }
-
-        if(thumbnailFile){
-
-            thumbnailUrl =
-                await uploadFile(
-                    "news-images",
-                    thumbnailFile
-                );
-        }
-
-        const {
-            data:{user}
-        } =
-        await db.auth.getUser();
-
-        const payload = {
-
-            tag:
-                $("videoTag").value.trim(),
-
-            title:
-                $("videoTitle").value.trim(),
-
-            description:
-                $("videoDescription").value.trim(),
-
-            approval_status:
-                status,
-
-            published:
-                status === "final_approved",
-
-            updated_at:
-                new Date().toISOString(),
-
-            updated_by:
-                user?.id || null
-
-        };
-
-        if(videoUrl)
-            payload.video_url =
-                videoUrl;
-
-        if(thumbnailUrl)
-            payload.thumbnail_url =
-                thumbnailUrl;
-
-
-        if(id){
-
-            const {
-                error
-            } =
-            await db
-                .from("videos")
-                .update(payload)
-                .eq("id",id);
-
-            if(error)
-                throw error;
-
-        }else{
-
-            payload.created_by =
-                user?.id || null;
-
-            const {
-                error
-            } =
-            await db
-                .from("videos")
-                .insert(payload);
-
-            if(error)
-                throw error;
-        }
-
-        message.textContent =
-            "✅ Video saved successfully.";
-
-        resetVideoForm();
-
-        await loadVideos();
-        await loadStats();
-
-    }catch(err){
-
-        console.error(err);
-
-        message.textContent =
-            "Error: " + err.message;
-    }
-
-});
-
-
-/* =========================================================
-   VIDEOS LIST
-========================================================= */
-
-async function loadVideos(){
-
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("videos")
-        .select("*")
-        .order(
-            "created_at",
-            {ascending:false}
-        );
-
-    if(error){
-
-        $("videoList").innerHTML =
-            `<div class="item">
-                ${error.message}
-             </div>`;
-
-        return;
-    }
-
-    $("videoList").innerHTML = "";
-
-    if(!data?.length){
-
-        $("videoList").innerHTML =
-            `<div class="item">
-                No videos found.
-             </div>`;
-
-        return;
-    }
-
-    data.forEach(v => {
-
-        const item =
-            document.createElement("div");
-
-        item.className = "item";
-
-        item.innerHTML = `
-
-            <div class="item-top">
-
-                <div class="item-title">
-                    ${escapeHtml(v.title || "")}
-                </div>
-
-                <span class="badge">
-                    ${escapeHtml(
-                        v.approval_status ||
-                        (v.published
-                            ?"published"
-                            :"draft")
-                    )}
-                </span>
-
-            </div>
-
-            ${
-                v.thumbnail_url
-                ? `<img class="preview"
-                     src="${escapeAttr(v.thumbnail_url)}">`
-                : ""
-            }
-
-            <div class="meta">
-                ${escapeHtml(v.tag || "")}
-            </div>
-
-            <div class="actions">
-
-                <button
-                    class="small-btn"
-                    data-edit-video="${v.id}">
-                    Edit
-                </button>
-
-                <button
-                    class="small-btn green"
-                    data-publish-video="${v.id}">
-                    Publish
-                </button>
-
-                <button
-                    class="small-btn orange"
-                    data-demo-video="${v.id}">
-                    Demo
-                </button>
-
-                <button
-                    class="small-btn red"
-                    data-delete-video="${v.id}">
-                    Delete
-                </button>
-
-            </div>
-        `;
-
-        $("videoList").appendChild(item);
-    });
-
-
-    $("videoList")
-    .querySelectorAll("[data-edit-video]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            editVideo(
-                btn.dataset.editVideo
-            )
-    );
-
-
-    $("videoList")
-    .querySelectorAll("[data-publish-video]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            changeVideoStatus(
-                btn.dataset.publishVideo,
-                "final_approved"
-            )
-    );
-
-
-    $("videoList")
-    .querySelectorAll("[data-demo-video]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            changeVideoStatus(
-                btn.dataset.demoVideo,
-                "demo_approved"
-            )
-    );
-
-
-    $("videoList")
-    .querySelectorAll("[data-delete-video]")
-    .forEach(btn =>
-        btn.onclick = () =>
-            deleteVideo(
-                btn.dataset.deleteVideo
-            )
-    );
-}
-
-
-/* =========================================================
-   EDIT VIDEO
-========================================================= */
-
-async function editVideo(id){
-
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("videos")
-        .select("*")
-        .eq("id",id)
-        .single();
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    $("videoId").value =
-        data.id;
-
-    $("videoTag").value =
-        data.tag || "";
-
-    $("videoTitle").value =
-        data.title || "";
-
-    $("videoDescription").value =
-        data.description || "";
-
-    $("videoCancelEdit")
-        .classList.remove("hide");
-
-    document
-        .querySelector('[data-tab="videoPanel"]')
-        ?.click();
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
-}
-
-
-/* =========================================================
-   VIDEO STATUS
-========================================================= */
-
-async function changeVideoStatus(
-    id,
-    status
-){
-
-    const {
-        error
-    } =
-    await db
-        .from("videos")
-        .update({
-            approval_status:status,
-            published:
-                status === "final_approved",
-            updated_at:
-                new Date().toISOString()
-        })
-        .eq("id",id);
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadVideos();
-    await loadStats();
-}
-
-
-/* =========================================================
-   DELETE VIDEO
-========================================================= */
-
-async function deleteVideo(id){
-
-    if(!confirm(
-        "Delete this video permanently?"
-    ))
-        return;
-
-    const {
-        error
-    } =
-    await db
-        .from("videos")
-        .delete()
-        .eq("id",id);
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    await loadVideos();
-    await loadStats();
-}
-
-
-function resetVideoForm(){
-
-    $("videoForm").reset();
-
-    $("videoId").value = "";
-
-    $("videoCancelEdit")
-        .classList.add("hide");
-
-    $("videoPreview").innerHTML = "";
-}
-
-
-$("videoCancelEdit").onclick =
-resetVideoForm;
-
-
-/* =========================================================
-   TRENDING FORM
-========================================================= */
-
-$("trendingForm").addEventListener(
-"submit",
-async e => {
-
-    e.preventDefault();
-
-    const id =
-        $("trendingId").value.trim();
-
-    const payload = {
-
-        title:
-            $("trendingTitle").value.trim(),
-
-        time:
-            $("trendingTime").value.trim(),
-
-        rank:
-            Number(
-                $("trendingRank").value || 1
-            ),
-
-        published:
-            $("trendingPublished").checked
-    };
-
-    const message =
-        $("trendingMessage");
-
-    message.textContent =
-        "Saving...";
-
-    let result;
-
-    if(id){
-
-        result =
-            await db
-                .from("trending")
-                .update(payload)
-                .eq("id",id);
+      visual = `
+        <div class="app-icon">
+          ${icon(app.type)}
+        </div>
+      `;
 
     }else{
 
-        result =
-            await db
-                .from("trending")
-                .insert(payload);
+      visual = `
+        <div
+          class="app-letter"
+          style="background:${app.color || "#6c5ce7"}">
+          ${(app.letter || app.name.charAt(0)).toUpperCase()}
+        </div>
+      `;
+
     }
 
-    if(result.error){
-
-        message.textContent =
-            result.error.message;
-
-        return;
-    }
-
-    message.textContent =
-        "✅ Trending saved.";
-
-    resetTrendingForm();
-
-    await loadTrending();
-    await loadStats();
-
-});
+    item.innerHTML = `
+      ${visual}
+      <span class="tooltip">${escapeHTML(app.name)}</span>
+    `;
 
 
-/* =========================================================
-   TRENDING LIST
-========================================================= */
+    item.addEventListener("click",()=>{
 
-async function loadTrending(){
+      openApp(app);
 
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("trending")
-        .select("*")
-        .order(
-            "rank",
-            {ascending:true}
-        );
-
-    if(error){
-
-        $("trendingList").innerHTML =
-            `<div class="item">
-                ${error.message}
-             </div>`;
-
-        return;
-    }
-
-    $("trendingList").innerHTML = "";
-
-    if(!data?.length){
-
-        $("trendingList").innerHTML =
-            `<div class="item">
-                No trending items.
-             </div>`;
-
-        return;
-    }
-
-    data.forEach(t => {
-
-        const item =
-            document.createElement("div");
-
-        item.className = "item";
-
-        item.innerHTML = `
-
-            <div class="item-top">
-
-                <div>
-                    <b>#${t.rank || 0}</b>
-                    &nbsp;
-                    ${escapeHtml(t.title || "")}
-                </div>
-
-                <span class="badge">
-                    ${t.published
-                        ?"Published"
-                        :"Hidden"}
-                </span>
-
-            </div>
-
-            <div class="meta">
-                ${escapeHtml(t.time || "")}
-            </div>
-
-            <div class="actions">
-
-                <button
-                    class="small-btn"
-                    data-edit-trending="${t.id}">
-                    Edit
-                </button>
-
-                <button
-                    class="small-btn ${
-                        t.published
-                        ?"orange"
-                        :"green"
-                    }"
-                    data-toggle-trending="${t.id}">
-                    ${t.published
-                        ?"Hide"
-                        :"Publish"}
-                </button>
-
-                <button
-                    class="small-btn red"
-                    data-delete-trending="${t.id}">
-                    Delete
-                </button>
-
-            </div>
-        `;
-
-        $("trendingList")
-            .appendChild(item);
     });
 
 
-    $("trendingList")
-    .querySelectorAll(
-        "[data-edit-trending]"
-    )
-    .forEach(btn =>
-        btn.onclick = () =>
-            editTrending(
-                btn.dataset.editTrending
-            )
-    );
+    /* DRAG */
 
+    item.addEventListener("dragstart",e=>{
 
-    $("trendingList")
-    .querySelectorAll(
-        "[data-toggle-trending]"
-    )
-    .forEach(btn =>
-        btn.onclick = () =>
-            toggleTrending(
-                btn.dataset.toggleTrending
-            )
-    );
+      e.dataTransfer.setData("text/plain",index);
 
+      item.style.opacity=".45";
 
-    $("trendingList")
-    .querySelectorAll(
-        "[data-delete-trending]"
-    )
-    .forEach(btn =>
-        btn.onclick = () =>
-            deleteTrending(
-                btn.dataset.deleteTrending
-            )
-    );
-}
-
-
-/* =========================================================
-   EDIT TRENDING
-========================================================= */
-
-async function editTrending(id){
-
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("trending")
-        .select("*")
-        .eq("id",id)
-        .single();
-
-    if(error){
-
-        alert(error.message);
-
-        return;
-    }
-
-    $("trendingId").value =
-        data.id;
-
-    $("trendingTitle").value =
-        data.title || "";
-
-    $("trendingTime").value =
-        data.time || "";
-
-    $("trendingRank").value =
-        data.rank || 1;
-
-    $("trendingPublished").checked =
-        !!data.published;
-
-    $("trendingCancelEdit")
-        .classList.remove("hide");
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
     });
+
+
+    item.addEventListener("dragend",()=>{
+
+      item.style.opacity="1";
+
+    });
+
+
+    item.addEventListener("dragover",e=>{
+
+      e.preventDefault();
+
+    });
+
+
+    item.addEventListener("drop",e=>{
+
+      e.preventDefault();
+
+      const from = Number(
+        e.dataTransfer.getData("text/plain")
+      );
+
+      const to = Number(item.dataset.index);
+
+      if(from===to) return;
+
+      const moved = apps.splice(from,1)[0];
+
+      apps.splice(to,0,moved);
+
+      saveApps();
+
+      renderApps();
+
+    });
+
+
+    container.appendChild(item);
+
+  });
+
 }
 
 
-$("trendingCancelEdit").onclick =
-resetTrendingForm;
+renderApps();
 
 
-function resetTrendingForm(){
+/* =========================================================
+   APP OPEN
+========================================================= */
 
-    $("trendingForm").reset();
+function openApp(app){
 
-    $("trendingId").value = "";
+  document.querySelectorAll(".app-item")
+    .forEach(x=>x.classList.remove("active"));
 
-    $("trendingRank").value = 1;
+  hideAllPages();
 
-    $("trendingPublished").checked =
-        true;
+  document.getElementById("pageTitle").textContent = app.name;
 
-    $("trendingCancelEdit")
-        .classList.add("hide");
+  /*
+    Direct navigation.
+    User's existing browser login session is used
+    whenever the service supports it.
+  */
+
+  window.location.assign(app.url);
+
 }
 
 
 /* =========================================================
-   TOGGLE TRENDING
+   HOME
 ========================================================= */
 
-async function toggleTrending(id){
+function showHome(){
 
-    const {
-        data,
-        error
-    } =
-    await db
-        .from("trending")
-        .select("published")
-        .eq("id",id)
-        .single();
+  hideAllPages();
 
-    if(error){
+  document.getElementById("homePage").style.display="flex";
 
-        alert(error.message);
+  document.getElementById("pageTitle").textContent="LOOPIN";
 
-        return;
-    }
+  clearTools();
 
-    const result =
-        await db
-            .from("trending")
-            .update({
-                published:
-                    !data.published
-            })
-            .eq("id",id);
+}
 
-    if(result.error){
 
-        alert(result.error.message);
+function hideAllPages(){
 
-        return;
-    }
+  document.getElementById("homePage").style.display="none";
+  document.getElementById("notesPage").style.display="none";
+  document.getElementById("savedPage").style.display="none";
+  document.getElementById("settingsPage").style.display="none";
 
-    await loadTrending();
+}
+
+
+function clearTools(){
+
+  document.querySelectorAll(".tool")
+    .forEach(x=>x.classList.remove("active"));
+
 }
 
 
 /* =========================================================
-   DELETE TRENDING
+   NOTES
 ========================================================= */
 
-async function deleteTrending(id){
+function openNotes(){
 
-    if(!confirm(
-        "Delete this trending item?"
-    ))
-        return;
+  hideAllPages();
 
-    const {
-        error
-    } =
-    await db
-        .from("trending")
-        .delete()
-        .eq("id",id);
+  document.getElementById("notesPage").style.display="block";
 
-    if(error){
+  document.getElementById("pageTitle").textContent="Notes";
 
-        alert(error.message);
+  clearTools();
 
-        return;
-    }
+  document.getElementById("notesTool")
+    .classList.add("active");
 
-    await loadTrending();
-    await loadStats();
+  document.getElementById("notes").value =
+    localStorage.getItem(NOTES_KEY) || "";
+
+}
+
+
+function saveNotes(){
+
+  const value = document.getElementById("notes").value;
+
+  localStorage.setItem(NOTES_KEY,value);
+
+  document.getElementById("saveStatus").textContent =
+    "Saved locally · " +
+    new Date().toLocaleTimeString([],{
+      hour:"2-digit",
+      minute:"2-digit"
+    });
+
+}
+
+
+function clearNotes(){
+
+  if(!confirm("Clear all notes?")) return;
+
+  localStorage.removeItem(NOTES_KEY);
+
+  document.getElementById("notes").value="";
+
+  document.getElementById("saveStatus").textContent =
+    "Notes cleared";
+
 }
 
 
 /* =========================================================
-   STATS
+   SAVED URLS
 ========================================================= */
 
-async function loadStats(){
+function openSaved(){
 
-    const news =
-        await db
-            .from("news")
-            .select("id,published");
+  hideAllPages();
 
-    const videos =
-        await db
-            .from("videos")
-            .select("id");
+  document.getElementById("savedPage").style.display="block";
 
-    const trending =
-        await db
-            .from("trending")
-            .select("id");
+  document.getElementById("pageTitle").textContent="Saved URLs";
 
-    $("statNews").textContent =
-        news.data?.length || 0;
+  clearTools();
 
-    $("statVideos").textContent =
-        videos.data?.length || 0;
+  document.getElementById("savedTool")
+    .classList.add("active");
 
-    $("statTrending").textContent =
-        trending.data?.length || 0;
+  renderSaved();
 
-    $("statPublished").textContent =
-        news.data
-        ?.filter(x => x.published)
-        .length || 0;
+}
+
+
+function getSaved(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(SAVED_KEY) || "[]"
+    );
+
+  }catch(e){
+
+    return [];
+
+  }
+
+}
+
+
+function renderSaved(){
+
+  const list = document.getElementById("savedList");
+
+  const saved = getSaved();
+
+  if(!saved.length){
+
+    list.innerHTML = `
+      <div class="saved-empty">
+        No saved URLs yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+  list.innerHTML="";
+
+  saved.forEach((item,index)=>{
+
+    const row = document.createElement("div");
+
+    row.className="saved-item";
+
+    row.innerHTML=`
+
+      <div class="saved-info">
+
+        <div class="saved-name">
+          ${escapeHTML(item.name)}
+        </div>
+
+        <div class="saved-url">
+          ${escapeHTML(item.url)}
+        </div>
+
+      </div>
+
+      <button
+        class="saved-open"
+        onclick="window.location.assign('${safeJS(item.url)}')">
+        Open
+      </button>
+
+      <button
+        class="delete-btn"
+        onclick="deleteSaved(${index})">
+        ✕
+      </button>
+
+    `;
+
+    list.appendChild(row);
+
+  });
+
+}
+
+
+function saveCurrentURL(){
+
+  const url = prompt(
+    "Enter website URL:",
+    "https://"
+  );
+
+  if(!url) return;
+
+  let finalURL=url.trim();
+
+  if(!/^https?:\/\//i.test(finalURL)){
+
+    finalURL="https://"+finalURL;
+
+  }
+
+  let name=prompt(
+    "Enter name:",
+    new URL(finalURL).hostname
+  );
+
+  if(!name) name=new URL(finalURL).hostname;
+
+  const saved=getSaved();
+
+  saved.push({
+    name,
+    url:finalURL
+  });
+
+  localStorage.setItem(
+    SAVED_KEY,
+    JSON.stringify(saved)
+  );
+
+  openSaved();
+
+}
+
+
+function deleteSaved(index){
+
+  const saved=getSaved();
+
+  saved.splice(index,1);
+
+  localStorage.setItem(
+    SAVED_KEY,
+    JSON.stringify(saved)
+  );
+
+  renderSaved();
+
+}
+
+
+function clearSaved(){
+
+  if(!confirm("Delete all saved URLs?")) return;
+
+  localStorage.removeItem(SAVED_KEY);
+
+  renderSaved();
+
 }
 
 
 /* =========================================================
-   LOAD ALL
+   SETTINGS
 ========================================================= */
 
-async function loadAll(){
+function openSettings(){
 
-    await Promise.all([
-        loadNews(),
-        loadVideos(),
-        loadTrending(),
-        loadStats()
-    ]);
+  hideAllPages();
+
+  document.getElementById("settingsPage").style.display="block";
+
+  document.getElementById("pageTitle").textContent="Settings";
+
+  clearTools();
+
+  document.getElementById("settingsTool")
+    .classList.add("active");
+
+}
+
+
+function resetApps(){
+
+  if(!confirm("Restore default apps and order?")) return;
+
+  apps=JSON.parse(
+    JSON.stringify(defaultApps)
+  );
+
+  saveApps();
+
+  renderApps();
+
+}
+
+
+ /* =========================================================
+    ADD APP
+ ========================================================= */
+
+function openAddApp(){
+
+  document.getElementById("addModal")
+    .classList.add("show");
+
+  setTimeout(()=>{
+
+    document.getElementById("appName").focus();
+
+  },100);
+
+}
+
+
+function closeAddApp(){
+
+  document.getElementById("addModal")
+    .classList.remove("show");
+
+  document.getElementById("appName").value="";
+  document.getElementById("appUrl").value="";
+  document.getElementById("appLetter").value="";
+
+}
+
+
+function addApp(){
+
+  const name=
+    document.getElementById("appName")
+    .value.trim();
+
+  let url=
+    document.getElementById("appUrl")
+    .value.trim();
+
+  const letter=
+    document.getElementById("appLetter")
+    .value.trim()
+    .slice(0,2);
+
+  if(!name){
+
+    alert("Please enter app name.");
+
+    return;
+
+  }
+
+  if(!url){
+
+    alert("Please enter website URL.");
+
+    return;
+
+  }
+
+  if(!/^https?:\/\//i.test(url)){
+
+    url="https://"+url;
+
+  }
+
+  try{
+
+    new URL(url);
+
+  }catch(e){
+
+    alert("Please enter a valid URL.");
+
+    return;
+
+  }
+
+
+  apps.push({
+
+    id:"custom_"+Date.now(),
+
+    name:name,
+
+    url:url,
+
+    letter:letter || name.charAt(0),
+
+    color:"#6c5ce7"
+
+  });
+
+
+  saveApps();
+
+  renderApps();
+
+  closeAddApp();
+
 }
 
 
 /* =========================================================
-   HTML ESCAPE
+   GOOGLE SEARCH
 ========================================================= */
 
-function escapeHtml(value){
+function openSearch(){
 
-    return String(value ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+  document.getElementById("searchOverlay")
+    .classList.add("show");
+
+  const input=
+    document.getElementById("searchInput");
+
+  input.value="";
+
+  setTimeout(()=>input.focus(),80);
+
 }
 
 
-function escapeAttr(value){
+function closeSearch(){
 
-    return escapeHtml(value);
+  document.getElementById("searchOverlay")
+    .classList.remove("show");
+
+}
+
+
+function closeSearchOutside(e){
+
+  if(e.target.id==="searchOverlay"){
+
+    closeSearch();
+
+  }
+
+}
+
+
+function handleSearch(e){
+
+  if(e.key==="Escape"){
+
+    closeSearch();
+
+    return;
+
+  }
+
+  if(e.key==="Enter"){
+
+    const q=
+      document.getElementById("searchInput")
+      .value.trim();
+
+    if(!q) return;
+
+    window.location.assign(
+      "https://www.google.com/search?q="+
+      encodeURIComponent(q)
+    );
+
+  }
+
 }
 
 
 /* =========================================================
-   IMAGE PREVIEW
+   KEYBOARD SHORTCUT
 ========================================================= */
 
-$("newsImage").addEventListener(
-"change",
-e => {
+document.addEventListener("keydown",e=>{
 
-    const file =
-        e.target.files[0];
+  if(
+    (e.ctrlKey || e.metaKey) &&
+    e.key.toLowerCase()==="k"
+  ){
 
-    if(!file)
-        return;
+    e.preventDefault();
 
-    const url =
-        URL.createObjectURL(file);
+    openSearch();
 
-    $("newsImagePreview").innerHTML =
-        `<img class="preview" src="${url}">`;
+  }
+
+  if(e.key==="Escape"){
+
+    closeSearch();
+
+  }
+
 });
 
 
-$("videoThumbnail").addEventListener(
-"change",
-e => {
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
 
-    const file =
-        e.target.files[0];
+document.getElementById("addModal")
+  .addEventListener("click",e=>{
 
-    if(!file)
-        return;
+    if(e.target.id==="addModal"){
 
-    const url =
-        URL.createObjectURL(file);
+      closeAddApp();
 
-    $("videoPreview").innerHTML =
-        `<img class="preview" src="${url}">`;
-});
+    }
+
+  });
 
 
 /* =========================================================
-   INITIAL START
+   HELPERS
 ========================================================= */
 
-(async function(){
+function escapeHTML(str){
 
-    /*
-      1. Supabase PKCE recovery:
-         ?code=xxxx
-    */
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 
-    if(
-        await handleRecoveryCode()
-    )
-        return;
-
-
-    /*
-      2. Recovery hash:
-         #type=recovery
-    */
-
-    if(
-        await handleRecoveryHash()
-    )
-        return;
+}
 
 
-    /*
-      3. Normal session
-    */
+function safeJS(str){
 
-    const {
-        data:{session}
-    } =
-    await db.auth.getSession();
+  return String(str)
+    .replaceAll("\\","\\\\")
+    .replaceAll("'","\\'");
 
-
-    if(!session){
-
-        showOnly("loginScreen");
-
-        return;
-    }
+}
 
 
-    /*
-      4. Verify manager
-    */
+/* =========================================================
+   OPTIONAL: SAVE URL QUICK ACTION
+========================================================= */
 
-    const ok =
-        await verifyManager();
+/*
+   Double-click the LOOPIN logo to save a URL quickly.
+*/
 
-    if(!ok){
-
-        showOnly("loginScreen");
-
-        return;
-    }
+document.querySelector(".logo-btn")
+  .addEventListener("dblclick",saveCurrentURL);
 
 
-    /*
-      5. Dashboard
-    */
-
-    showOnly("dashboardScreen");
-
-    await loadAll();
-
-})();
 </script>
 
 </body>
